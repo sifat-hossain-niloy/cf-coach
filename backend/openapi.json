@@ -1,0 +1,1702 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "CF Coach API",
+    "description": "Personal Codeforces training dashboards built from the public Codeforces API.",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/handles/{handle}/sync": {
+      "post": {
+        "summary": "Sync Handle",
+        "description": "Enqueue a sync, or return the cached state if synced in the last 10 minutes.",
+        "operationId": "sync_handle_api_handles__handle__sync_post",
+        "parameters": [
+          {
+            "name": "handle",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Handle"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jobs/{job_id}": {
+      "get": {
+        "summary": "Get Job",
+        "operationId": "get_job_api_jobs__job_id__get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_api_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/handles/{handle}/summary": {
+      "get": {
+        "summary": "Summary",
+        "description": "Profile, rank, target, gap, top 3 weak tags, last synced time.",
+        "operationId": "summary_api_handles__handle__summary_get",
+        "parameters": [
+          {
+            "name": "handle",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Handle"
+            }
+          },
+          {
+            "name": "target",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 5000,
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Override the target rating",
+              "title": "Target"
+            },
+            "description": "Override the target rating"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SummaryOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/handles/{handle}/tags": {
+      "get": {
+        "summary": "Tags",
+        "operationId": "tags_api_handles__handle__tags_get",
+        "parameters": [
+          {
+            "name": "handle",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Handle"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TagsOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/handles/{handle}/bands": {
+      "get": {
+        "summary": "Bands",
+        "operationId": "bands_api_handles__handle__bands_get",
+        "parameters": [
+          {
+            "name": "handle",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Handle"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BandsOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/handles/{handle}/weak": {
+      "get": {
+        "summary": "Weak",
+        "description": "Top weak tags with every score component. band_lo/band_hi override the default band.",
+        "operationId": "weak_api_handles__handle__weak_get",
+        "parameters": [
+          {
+            "name": "handle",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Handle"
+            }
+          },
+          {
+            "name": "band_lo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 5000,
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Band Lo"
+            }
+          },
+          {
+            "name": "band_hi",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 5000,
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Band Hi"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeakOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/handles/{handle}/progress": {
+      "get": {
+        "summary": "Progress",
+        "operationId": "progress_api_handles__handle__progress_get",
+        "parameters": [
+          {
+            "name": "handle",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Handle"
+            }
+          },
+          {
+            "name": "target",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 5000,
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Override the target rating",
+              "title": "Target"
+            },
+            "description": "Override the target rating"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProgressOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/handles/{handle}/queue": {
+      "get": {
+        "summary": "Queue",
+        "description": "Today's upsolve queue, deterministic per (handle, date).",
+        "operationId": "queue_api_handles__handle__queue_get",
+        "parameters": [
+          {
+            "name": "handle",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Handle"
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "YYYY-MM-DD (UTC); default today",
+              "title": "Date"
+            },
+            "description": "YYYY-MM-DD (UTC); default today"
+          },
+          {
+            "name": "n",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 20,
+              "minimum": 1,
+              "default": 5,
+              "title": "N"
+            }
+          },
+          {
+            "name": "exclude",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 4000
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Skipped problems: 1700-C,1701-A",
+              "title": "Exclude"
+            },
+            "description": "Skipped problems: 1700-C,1701-A"
+          },
+          {
+            "name": "band_lo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 5000,
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Band Lo"
+            }
+          },
+          {
+            "name": "band_hi",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 5000,
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Band Hi"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueueOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BandStat": {
+        "properties": {
+          "bucket": {
+            "type": "integer",
+            "title": "Bucket"
+          },
+          "attempted": {
+            "type": "integer",
+            "title": "Attempted",
+            "default": 0
+          },
+          "solved": {
+            "type": "integer",
+            "title": "Solved",
+            "default": 0
+          },
+          "solve_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Solve Rate"
+          },
+          "contest_attempted": {
+            "type": "integer",
+            "title": "Contest Attempted",
+            "default": 0
+          },
+          "contest_solved": {
+            "type": "integer",
+            "title": "Contest Solved",
+            "default": 0
+          },
+          "practice_attempted": {
+            "type": "integer",
+            "title": "Practice Attempted",
+            "default": 0
+          },
+          "practice_solved": {
+            "type": "integer",
+            "title": "Practice Solved",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "bucket"
+        ],
+        "title": "BandStat"
+      },
+      "BandsOut": {
+        "properties": {
+          "handle": {
+            "type": "string",
+            "title": "Handle"
+          },
+          "enough_data": {
+            "type": "boolean",
+            "title": "Enough Data"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "level": {
+            "$ref": "#/components/schemas/Level"
+          },
+          "bands": {
+            "items": {
+              "$ref": "#/components/schemas/BandStat"
+            },
+            "type": "array",
+            "title": "Bands"
+          }
+        },
+        "type": "object",
+        "required": [
+          "handle",
+          "enough_data",
+          "level",
+          "bands"
+        ],
+        "title": "BandsOut"
+      },
+      "Counts": {
+        "properties": {
+          "submissions": {
+            "type": "integer",
+            "title": "Submissions"
+          },
+          "attempted": {
+            "type": "integer",
+            "title": "Attempted"
+          },
+          "solved": {
+            "type": "integer",
+            "title": "Solved"
+          },
+          "rated_solves": {
+            "type": "integer",
+            "title": "Rated Solves"
+          },
+          "rated_contests": {
+            "type": "integer",
+            "title": "Rated Contests"
+          }
+        },
+        "type": "object",
+        "required": [
+          "submissions",
+          "attempted",
+          "solved",
+          "rated_solves",
+          "rated_contests"
+        ],
+        "title": "Counts"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthOut": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "ok",
+            "title": "Status"
+          },
+          "db": {
+            "type": "boolean",
+            "title": "Db"
+          },
+          "queued_jobs": {
+            "type": "integer",
+            "title": "Queued Jobs"
+          },
+          "problemset_fetched_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Problemset Fetched At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "db",
+          "queued_jobs",
+          "problemset_fetched_at"
+        ],
+        "title": "HealthOut"
+      },
+      "JobOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "handle": {
+            "type": "string",
+            "title": "Handle"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "running",
+              "done",
+              "failed"
+            ],
+            "title": "Status"
+          },
+          "position": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Position"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "handle",
+          "status",
+          "position",
+          "stage",
+          "error",
+          "error_code",
+          "created_at",
+          "finished_at"
+        ],
+        "title": "JobOut"
+      },
+      "Level": {
+        "properties": {
+          "value": {
+            "type": "integer",
+            "title": "Value"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "contest",
+              "practice",
+              "default"
+            ],
+            "title": "Source"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "value",
+          "source",
+          "note"
+        ],
+        "title": "Level"
+      },
+      "PracticePoint": {
+        "properties": {
+          "time": {
+            "type": "integer",
+            "title": "Time"
+          },
+          "rating": {
+            "type": "integer",
+            "title": "Rating"
+          },
+          "window": {
+            "type": "integer",
+            "title": "Window"
+          }
+        },
+        "type": "object",
+        "required": [
+          "time",
+          "rating",
+          "window"
+        ],
+        "title": "PracticePoint"
+      },
+      "ProgressOut": {
+        "properties": {
+          "handle": {
+            "type": "string",
+            "title": "Handle"
+          },
+          "enough_data": {
+            "type": "boolean",
+            "title": "Enough Data"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "rating": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rating"
+          },
+          "max_rating": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Rating"
+          },
+          "rank": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RankOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "max_rank": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RankOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "level": {
+            "$ref": "#/components/schemas/Level"
+          },
+          "target": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target"
+          },
+          "target_rank": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RankOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "gap": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gap"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/RatingPoint"
+            },
+            "type": "array",
+            "title": "History"
+          },
+          "avg_delta_recent": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Delta Recent"
+          },
+          "recent_contests": {
+            "type": "integer",
+            "title": "Recent Contests"
+          },
+          "contests_needed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contests Needed"
+          },
+          "estimate_note": {
+            "type": "string",
+            "title": "Estimate Note"
+          },
+          "practice_rating": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Practice Rating"
+          },
+          "practice_history": {
+            "items": {
+              "$ref": "#/components/schemas/PracticePoint"
+            },
+            "type": "array",
+            "title": "Practice History"
+          },
+          "practice_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Practice Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "handle",
+          "enough_data",
+          "rating",
+          "max_rating",
+          "rank",
+          "max_rank",
+          "level",
+          "target",
+          "target_rank",
+          "gap",
+          "history",
+          "avg_delta_recent",
+          "recent_contests",
+          "contests_needed",
+          "estimate_note",
+          "practice_rating",
+          "practice_history",
+          "practice_message"
+        ],
+        "title": "ProgressOut"
+      },
+      "QueueItem": {
+        "properties": {
+          "contest_id": {
+            "type": "integer",
+            "title": "Contest Id"
+          },
+          "index": {
+            "type": "string",
+            "title": "Index"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "rating": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rating"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tags"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "A",
+              "B",
+              "C"
+            ],
+            "title": "Source"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "solved": {
+            "type": "boolean",
+            "title": "Solved"
+          }
+        },
+        "type": "object",
+        "required": [
+          "contest_id",
+          "index",
+          "name",
+          "rating",
+          "tags",
+          "source",
+          "reason",
+          "url",
+          "solved"
+        ],
+        "title": "QueueItem"
+      },
+      "QueueOut": {
+        "properties": {
+          "handle": {
+            "type": "string",
+            "title": "Handle"
+          },
+          "enough_data": {
+            "type": "boolean",
+            "title": "Enough Data"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "level": {
+            "$ref": "#/components/schemas/Level"
+          },
+          "band_lo": {
+            "type": "integer",
+            "title": "Band Lo"
+          },
+          "band_hi": {
+            "type": "integer",
+            "title": "Band Hi"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/QueueItem"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "handle",
+          "enough_data",
+          "date",
+          "level",
+          "band_lo",
+          "band_hi",
+          "items"
+        ],
+        "title": "QueueOut"
+      },
+      "RankOut": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "color": {
+            "type": "string",
+            "title": "Color"
+          },
+          "min_rating": {
+            "type": "integer",
+            "title": "Min Rating"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "color",
+          "min_rating"
+        ],
+        "title": "RankOut"
+      },
+      "RatingPoint": {
+        "properties": {
+          "contest_id": {
+            "type": "integer",
+            "title": "Contest Id"
+          },
+          "contest_name": {
+            "type": "string",
+            "title": "Contest Name"
+          },
+          "time": {
+            "type": "integer",
+            "title": "Time"
+          },
+          "old_rating": {
+            "type": "integer",
+            "title": "Old Rating"
+          },
+          "new_rating": {
+            "type": "integer",
+            "title": "New Rating"
+          },
+          "delta": {
+            "type": "integer",
+            "title": "Delta"
+          },
+          "rank": {
+            "type": "integer",
+            "title": "Rank"
+          }
+        },
+        "type": "object",
+        "required": [
+          "contest_id",
+          "contest_name",
+          "time",
+          "old_rating",
+          "new_rating",
+          "delta",
+          "rank"
+        ],
+        "title": "RatingPoint"
+      },
+      "SummaryOut": {
+        "properties": {
+          "handle": {
+            "type": "string",
+            "title": "Handle"
+          },
+          "avatar": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar"
+          },
+          "rating": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rating"
+          },
+          "max_rating": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Rating"
+          },
+          "rank": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RankOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "level": {
+            "$ref": "#/components/schemas/Level"
+          },
+          "practice_rating": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Practice Rating"
+          },
+          "target": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target"
+          },
+          "target_rank": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RankOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "gap": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gap"
+          },
+          "top_weak": {
+            "items": {
+              "$ref": "#/components/schemas/WeakTag"
+            },
+            "type": "array",
+            "title": "Top Weak"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/Counts"
+          },
+          "last_synced_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Synced At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "handle",
+          "avatar",
+          "rating",
+          "max_rating",
+          "rank",
+          "level",
+          "practice_rating",
+          "target",
+          "target_rank",
+          "gap",
+          "top_weak",
+          "counts",
+          "last_synced_at"
+        ],
+        "title": "SummaryOut"
+      },
+      "SyncOut": {
+        "properties": {
+          "handle": {
+            "type": "string",
+            "title": "Handle"
+          },
+          "cached": {
+            "type": "boolean",
+            "title": "Cached"
+          },
+          "last_synced_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Synced At"
+          },
+          "job": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/JobOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "handle",
+          "cached",
+          "last_synced_at",
+          "job"
+        ],
+        "title": "SyncOut"
+      },
+      "TagStat": {
+        "properties": {
+          "tag": {
+            "type": "string",
+            "title": "Tag"
+          },
+          "attempted": {
+            "type": "integer",
+            "title": "Attempted"
+          },
+          "solved": {
+            "type": "integer",
+            "title": "Solved"
+          },
+          "solve_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Solve Rate"
+          },
+          "first_try_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Try Rate"
+          },
+          "avg_wrong_before_ac": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Wrong Before Ac"
+          },
+          "median_rating_solved": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Rating Solved"
+          },
+          "max_rating_solved": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Rating Solved"
+          },
+          "verdicts": {
+            "$ref": "#/components/schemas/VerdictCounts"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tag",
+          "attempted",
+          "solved",
+          "solve_rate",
+          "first_try_rate",
+          "avg_wrong_before_ac",
+          "median_rating_solved",
+          "max_rating_solved",
+          "verdicts"
+        ],
+        "title": "TagStat"
+      },
+      "TagsOut": {
+        "properties": {
+          "handle": {
+            "type": "string",
+            "title": "Handle"
+          },
+          "enough_data": {
+            "type": "boolean",
+            "title": "Enough Data"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "tags": {
+            "items": {
+              "$ref": "#/components/schemas/TagStat"
+            },
+            "type": "array",
+            "title": "Tags"
+          }
+        },
+        "type": "object",
+        "required": [
+          "handle",
+          "enough_data",
+          "tags"
+        ],
+        "title": "TagsOut"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "VerdictCounts": {
+        "properties": {
+          "wa": {
+            "type": "integer",
+            "title": "Wa",
+            "default": 0
+          },
+          "tle": {
+            "type": "integer",
+            "title": "Tle",
+            "default": 0
+          },
+          "mle": {
+            "type": "integer",
+            "title": "Mle",
+            "default": 0
+          },
+          "re": {
+            "type": "integer",
+            "title": "Re",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "title": "VerdictCounts"
+      },
+      "WeakOut": {
+        "properties": {
+          "handle": {
+            "type": "string",
+            "title": "Handle"
+          },
+          "enough_data": {
+            "type": "boolean",
+            "title": "Enough Data"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "level": {
+            "$ref": "#/components/schemas/Level"
+          },
+          "band_lo": {
+            "type": "integer",
+            "title": "Band Lo"
+          },
+          "band_hi": {
+            "type": "integer",
+            "title": "Band Hi"
+          },
+          "prior": {
+            "type": "number",
+            "title": "Prior"
+          },
+          "smoothing_a": {
+            "type": "number",
+            "title": "Smoothing A"
+          },
+          "coverage_full": {
+            "type": "integer",
+            "title": "Coverage Full"
+          },
+          "coverage_weight": {
+            "type": "number",
+            "title": "Coverage Weight"
+          },
+          "tags": {
+            "items": {
+              "$ref": "#/components/schemas/WeakTag"
+            },
+            "type": "array",
+            "title": "Tags"
+          }
+        },
+        "type": "object",
+        "required": [
+          "handle",
+          "enough_data",
+          "level",
+          "band_lo",
+          "band_hi",
+          "prior",
+          "smoothing_a",
+          "coverage_full",
+          "coverage_weight",
+          "tags"
+        ],
+        "title": "WeakOut"
+      },
+      "WeakTag": {
+        "properties": {
+          "tag": {
+            "type": "string",
+            "title": "Tag"
+          },
+          "weakness": {
+            "type": "number",
+            "title": "Weakness"
+          },
+          "importance": {
+            "type": "number",
+            "title": "Importance"
+          },
+          "success": {
+            "type": "number",
+            "title": "Success"
+          },
+          "coverage": {
+            "type": "number",
+            "title": "Coverage"
+          },
+          "attempted_in_band": {
+            "type": "integer",
+            "title": "Attempted In Band"
+          },
+          "solved_in_band": {
+            "type": "integer",
+            "title": "Solved In Band"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tag",
+          "weakness",
+          "importance",
+          "success",
+          "coverage",
+          "attempted_in_band",
+          "solved_in_band"
+        ],
+        "title": "WeakTag"
+      }
+    }
+  }
+}

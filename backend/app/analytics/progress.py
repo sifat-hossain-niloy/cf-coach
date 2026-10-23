@@ -58,4 +58,5 @@ def contests_needed(gap: int | None, avg_delta: float | None) -> tuple[int | Non
             "the gap is not closing yet."
         )
     n = math.ceil(gap / avg_delta)
-    return n, f"Rough estimate: about {n} contests at your recent average of {avg_delta:+.1f} per contest."
+    unit = "contest" if n == 1 else "contests"
+    return n, f"Rough estimate: about {n} {unit} at your recent average of {avg_delta:+.1f} per contest."
