@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime, timezone
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -14,6 +15,7 @@ from app.analytics.progress import determine_level
 from app.analytics.stats import band_stats, tag_stats
 from app.analytics.types import ProblemAgg, ProblemKey, Prob, Sub
 from app.analytics.weakness import weakness_scores
+from app.queue import QueueInputs, contests_taken
 from app.models import AnalyticsCache, Handle, Meta, Problem, ProblemTagBucket, RatingChange, Submission, utcnow
 from app.schemas import CoreAnalytics, Counts, RatingPoint
 
@@ -135,3 +137,41 @@ def get_core(db: Session, handle: Handle) -> CoreAnalytics:
     if row is not None and (row.payload or {}).get("version") == config.ANALYTICS_VERSION:
         return CoreAnalytics.model_validate(row.payload)
     return refresh_analytics(db, handle.id)
+
+
+# --- queue -------------------------------------------------------------------------------------------
+
+
+def queue_inputs(
+    db: Session,
+    handle: Handle,
+    core: CoreAnalytics,
+    date: str,
+    band: tuple[int, int] | None = None,
+    exclude: frozenset[ProblemKey] = frozenset(),
+) -> QueueInputs:
+    """Assemble queue inputs, using only history from before `date` (UTC) for candidates."""
+    day_start = int(datetime.strptime(date, "%Y-%m-%d").replace(tzinfo=timezone.utc).timestamp())
+    problems = load_problems(db)
+    user = load_user(db, handle.id, problems)
+    before = [s for s in user.subs if s.time < day_start]
+    snapshot = aggregate(before, user.canon)
+    lo, hi = band or target_band(core.level.value)
+    weak, _ = weakness_scores(snapshot.values(), load_bucket_counts(db), lo, hi)
+    taken = contests_taken(
+        (h.contest_id for h in user.history if h.time < day_start),
+        (s.contest_id for s in before if s.participant_type in config.IN_CONTEST_TYPES),
+    )
+    return QueueInputs(
+        handle_key=handle.handle_key,
+        date=date,
+        level=core.level.value,
+        band=(lo, hi),
+        snapshot=snapshot,
+        current=user.aggs,
+        canon=user.canon,
+        problems=problems,
+        contests_taken=taken,
+        weak_tags=[w.tag for w in weak],
+        exclude=exclude,
+    )

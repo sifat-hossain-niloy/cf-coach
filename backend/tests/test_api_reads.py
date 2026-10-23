@@ -64,3 +64,22 @@ async def test_new_user_gets_not_enough_data(api, session_factory):
 def test_unsynced_handle_is_404_not_synced(api):
     r = api.get("/api/handles/someone/summary")
     assert r.status_code == 404 and r.json()["detail"]["code"] == "not_synced"
+
+
+async def test_queue_endpoint_deterministic_and_validated(api, session_factory):
+    user = {"handle": "Mid_User", "rating": 1500, "maxRating": 1550, "rank": "specialist"}
+    subs = [sub(i, cid=2270 + i % 6, idx="ABCDEF"[i % 6], rating=1200 + 100 * (i % 6),
+                tags=("dp",), verdict="OK" if i % 4 else "WRONG_ANSWER", ptype="CONTESTANT")
+            for i in range(40, 0, -1)]
+    ratings = [{"contestId": 2270 + k, "contestName": f"R{k}", "rank": 100, "ratingUpdateTimeSeconds": 1_600_000_000 + k,
+                "oldRating": 1400 + 20 * k, "newRating": 1420 + 20 * k} for k in range(5)]
+    await _synced(session_factory, user, subs, ratings)
+    q1 = api.get("/api/handles/mid_user/queue?date=2026-10-23").json()
+    q2 = api.get("/api/handles/MID_USER/queue?date=2026-10-23").json()
+    assert q1["items"] and q1["items"] == q2["items"] and q1["date"] == "2026-10-23"
+    assert len(api.get("/api/handles/mid_user/queue?date=2026-10-23&n=2").json()["items"]) <= 2
+    first = q1["items"][0]
+    q3 = api.get(f"/api/handles/mid_user/queue?date=2026-10-23&exclude={first['contest_id']}-{first['index']}").json()
+    assert all((i["contest_id"], i["index"]) != (first["contest_id"], first["index"]) for i in q3["items"])
+    assert api.get("/api/handles/mid_user/queue?date=2026-13-45").status_code == 422
+    assert api.get("/api/handles/mid_user/queue?n=99").status_code == 422

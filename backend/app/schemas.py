@@ -194,3 +194,23 @@ class SummaryOut(BaseModel):
     top_weak: list[WeakTag]
     counts: Counts
     last_synced_at: datetime | None
+
+
+class QueueItem(BaseModel):
+    contest_id: int
+    index: str
+    name: str
+    rating: int | None
+    tags: list[str]
+    source: Literal["A", "B", "C"]
+    reason: str
+    url: str
+    solved: bool
+
+
+class QueueOut(Section):
+    date: str
+    level: Level
+    band_lo: int
+    band_hi: int
+    items: list[QueueItem]

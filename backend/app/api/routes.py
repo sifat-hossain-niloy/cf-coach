@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy import func, select
@@ -16,6 +16,7 @@ from app.models import Handle, Job, Meta, as_utc, utcnow
 from app.analytics import service
 from app.analytics.progress import choose_target, contests_needed, recent_average_delta
 from app.analytics.weakness import weakness_scores
+from app.queue import build_queue
 from app.ranks import rank_for
 from app.schemas import (
     BandsOut,
@@ -23,6 +24,7 @@ from app.schemas import (
     HealthOut,
     JobOut,
     ProgressOut,
+    QueueOut,
     RankOut,
     SummaryOut,
     SyncOut,
@@ -269,4 +271,46 @@ def progress(handle: str, target: int | None = TargetQuery, db: Session = Depend
         practice_rating=core.practice_rating,
         practice_history=core.practice_history,
         practice_message=practice_msg,
+    )
+
+
+def _parse_exclude(raw: str | None) -> frozenset[tuple[int, str]]:
+    """'1700-C,1701-A' → {(1700, 'C'), (1701, 'A')}; malformed entries are ignored."""
+    out = set()
+    for part in (raw or "").split(","):
+        cid, _, idx = part.strip().partition("-")
+        if cid.isdigit() and idx and len(idx) <= 4:
+            out.add((int(cid), idx.upper()))
+    return frozenset(out)
+
+
+@router.get("/handles/{handle}/queue", response_model=QueueOut)
+def queue(
+    handle: str,
+    date: str | None = Query(None, pattern=r"^\d{4}-\d{2}-\d{2}$", description="YYYY-MM-DD (UTC); default today"),
+    n: int = Query(config.QUEUE_DEFAULT_N, ge=1, le=config.QUEUE_MAX_N),
+    exclude: str | None = Query(None, max_length=4000, description="Skipped problems: 1700-C,1701-A"),
+    band_lo: int | None = Query(None, ge=0, le=5000),
+    band_hi: int | None = Query(None, ge=0, le=5000),
+    db: Session = Depends(get_db),
+) -> QueueOut:
+    """Today's upsolve queue, deterministic per (handle, date)."""
+    row = synced_handle(db, handle)
+    core = service.get_core(db, row)
+    day = date or utcnow().strftime("%Y-%m-%d")
+    try:
+        datetime.strptime(day, "%Y-%m-%d")
+    except ValueError:
+        raise HTTPException(422, "date must be a valid YYYY-MM-DD") from None
+    band = None
+    if band_lo is not None or band_hi is not None:
+        lo = band_lo if band_lo is not None else core.band_lo
+        band = (lo, band_hi if band_hi is not None else max(core.band_hi, lo))
+    inputs = service.queue_inputs(db, row, core, day, band, _parse_exclude(exclude))
+    items = build_queue(inputs, n)
+    enough = bool(items)
+    return QueueOut(
+        handle=row.display_handle, enough_data=enough,
+        message=None if enough else "No queue yet: we couldn't find suitable problems. Sync again after solving a few.",
+        date=day, level=core.level, band_lo=inputs.band[0], band_hi=inputs.band[1], items=items,
     )
