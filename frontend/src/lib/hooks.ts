@@ -47,18 +47,19 @@ export function useHandleSync(handle: string): SyncState {
   const [hasData, setHasData] = useState(false);
   const [version, setVersion] = useState(0);
   const timer = useRef<number | null>(null);
-  const alive = useRef(true);
+  // Each mount/handle change starts a new generation; callbacks from older ones are ignored.
+  const gen = useRef(0);
 
   const stopPolling = () => {
     if (timer.current !== null) window.clearTimeout(timer.current);
     timer.current = null;
   };
 
-  const poll = useCallback((id: number) => {
+  const poll = useCallback((id: number, g: number) => {
     api
       .job(id)
       .then((j) => {
-        if (!alive.current) return;
+        if (gen.current !== g) return;
         setJob(j);
         if (j.status === "done") {
           setPhase("idle");
@@ -68,41 +69,43 @@ export function useHandleSync(handle: string): SyncState {
           setPhase(j.error_code === "not_found" ? "not_found" : "error");
           setMessage(j.error ?? "Sync failed.");
         } else {
-          timer.current = window.setTimeout(() => poll(id), POLL_MS);
+          timer.current = window.setTimeout(() => poll(id, g), POLL_MS);
         }
       })
       .catch(() => {
-        if (alive.current) timer.current = window.setTimeout(() => poll(id), POLL_MS * 2);
+        if (gen.current === g) timer.current = window.setTimeout(() => poll(id, g), POLL_MS * 2);
       });
   }, []);
 
-  const startSync = useCallback(() => {
-    stopPolling();
-    setMessage(null);
-    api
-      .sync(handle)
-      .then((r) => {
-        if (!alive.current) return;
-        if (r.cached || !r.job) {
-          setPhase("idle");
-          setHasData(true);
-          setVersion((v) => v + 1);
-          return;
-        }
-        setJob(r.job);
-        setPhase("syncing");
-        poll(r.job.id);
-      })
-      .catch((e: unknown) => {
-        if (!alive.current) return;
-        if (e instanceof ApiError && e.code === "not_found") setPhase("not_found");
-        else setPhase("error");
-        setMessage(e instanceof Error ? e.message : "Sync failed.");
-      });
-  }, [handle, poll]);
+  const startSync = useCallback(
+    (g: number) => {
+      stopPolling();
+      setMessage(null);
+      api
+        .sync(handle)
+        .then((r) => {
+          if (gen.current !== g) return;
+          if (r.cached || !r.job) {
+            setPhase("idle");
+            setHasData(true);
+            setVersion((v) => v + 1);
+            return;
+          }
+          setJob(r.job);
+          setPhase("syncing");
+          poll(r.job.id, g);
+        })
+        .catch((e: unknown) => {
+          if (gen.current !== g) return;
+          setPhase(e instanceof ApiError && e.code === "not_found" ? "not_found" : "error");
+          setMessage(e instanceof Error ? e.message : "Sync failed.");
+        });
+    },
+    [handle, poll],
+  );
 
   useEffect(() => {
-    alive.current = true;
+    const g = ++gen.current;
     setPhase("checking");
     setHasData(false);
     setJob(null);
@@ -110,29 +113,27 @@ export function useHandleSync(handle: string): SyncState {
     api
       .summary(handle)
       .then((s) => {
-        if (!alive.current) return;
+        if (gen.current !== g) return;
         setHasData(true);
         setVersion((v) => v + 1);
-        if (needsSync(s.last_synced_at)) startSync();
+        if (needsSync(s.last_synced_at)) startSync(g);
         else setPhase("idle");
       })
       .catch((e: unknown) => {
-        if (!alive.current) return;
-        if (e instanceof ApiError && e.code === "not_found") {
-          setPhase("not_found");
+        if (gen.current !== g) return;
+        if (e instanceof ApiError && (e.code === "not_found" || e.status === 422)) {
+          setPhase(e.code === "not_found" ? "not_found" : "error");
           setMessage(e.message);
-        } else if (e instanceof ApiError && e.status === 422) {
-          setPhase("error");
-          setMessage(e.message);
-        } else startSync();
+        } else startSync(g);
       });
     return () => {
-      alive.current = false;
+      gen.current++;
       stopPolling();
     };
   }, [handle, startSync]);
 
-  return { phase, job, message, hasData, version, resync: startSync };
+  const resync = useCallback(() => startSync(gen.current), [startSync]);
+  return { phase, job, message, hasData, version, resync };
 }
 
 /** Dark mode: follows the system until the user picks, then remembers the choice. */

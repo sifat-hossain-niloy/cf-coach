@@ -104,3 +104,17 @@ async def test_handle_not_found_fails_job_and_marks_handle(session_factory):
     assert err.value.code == "not_found"
     with session_factory() as db:
         assert db.scalars(select(Handle)).one().not_found_at is not None
+
+
+async def test_renamed_handle_is_stored_under_requested_key(session_factory):
+    """Codeforces resolves an old handle to the user's new one; /u/old_name must still find the data."""
+    cf = _cf_world()
+    cf.users["old_name"] = {**cf.users["tourist"], "handle": "NewName"}
+    cf.submissions["newname"] = cf.submissions["tourist"]
+    with session_factory() as db:
+        job, _ = jobs.enqueue_sync(db, "old_name")
+    await run_sync(cf, session_factory, job.id, "old_name")
+    with session_factory() as db:
+        h = db.scalars(select(Handle)).one()
+        assert (h.handle_key, h.display_handle) == ("old_name", "NewName") and h.last_synced_at
+    assert ("user.status", ("NewName", 1, 1000)) in cf.calls

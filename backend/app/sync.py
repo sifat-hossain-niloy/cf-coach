@@ -137,8 +137,8 @@ def mark_not_found(db: Session, key: str) -> None:
         handle.not_found_at = utcnow()
 
 
-def upsert_handle(db: Session, user: dict[str, Any]) -> Handle:
-    key = user["handle"].lower()
+def upsert_handle(db: Session, user: dict[str, Any], key: str) -> Handle:
+    """Store under the key the user asked for (an old, renamed handle still resolves on Codeforces)."""
     handle = db.scalars(select(Handle).where(Handle.handle_key == key)).first()
     if handle is None:
         handle = Handle(handle_key=key, display_handle=user["handle"])
@@ -225,7 +225,7 @@ async def run_sync(
     canonical = user["handle"]
 
     with session() as db:
-        handle = upsert_handle(db, user)
+        handle = upsert_handle(db, user, key.lower())
         handle_id = handle.id
         stop_at = resume_point(db, handle)
         prev_newest = handle.newest_submission_id
