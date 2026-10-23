@@ -1,0 +1,7 @@
+{
+ "http_status": 400,
+ "body": {
+  "status": "FAILED",
+  "comment": "handles: User with handle thishandledoesnotexist123zz not found"
+ }
+}

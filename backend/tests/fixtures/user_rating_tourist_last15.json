@@ -1,0 +1,140 @@
+{
+ "status": "OK",
+ "result": [
+  {
+   "contestId": 2187,
+   "contestName": "Codeforces Round 1077 (Div. 1)",
+   "handle": "tourist",
+   "rank": 5,
+   "ratingUpdateTimeSeconds": 1769708100,
+   "oldRating": 3513,
+   "newRating": 3533
+  },
+  {
+   "contestId": 2196,
+   "contestName": "Codeforces Round 1079 (Div. 1)",
+   "handle": "tourist",
+   "rank": 2,
+   "ratingUpdateTimeSeconds": 1770831300,
+   "oldRating": 3533,
+   "newRating": 3593
+  },
+  {
+   "contestId": 2201,
+   "contestName": "Codeforces Round 1082 (Div. 1)",
+   "handle": "tourist",
+   "rank": 1,
+   "ratingUpdateTimeSeconds": 1771866300,
+   "oldRating": 3593,
+   "newRating": 3718
+  },
+  {
+   "contestId": 2207,
+   "contestName": "Codeforces Round 1085 (Div. 1 + Div. 2)",
+   "handle": "tourist",
+   "rank": 3,
+   "ratingUpdateTimeSeconds": 1772991300,
+   "oldRating": 3718,
+   "newRating": 3719
+  },
+  {
+   "contestId": 2211,
+   "contestName": "Nebius Round 2 (Codeforces Round 1088, Div. 1 + Div. 2)",
+   "handle": "tourist",
+   "rank": 2,
+   "ratingUpdateTimeSeconds": 1774718100,
+   "oldRating": 3719,
+   "newRating": 3755
+  },
+  {
+   "contestId": 2219,
+   "contestName": "Codeforces Round 1093 (Div. 1)",
+   "handle": "tourist",
+   "rank": 42,
+   "ratingUpdateTimeSeconds": 1776098100,
+   "oldRating": 3755,
+   "newRating": 3544
+  },
+  {
+   "contestId": 2222,
+   "contestName": "Spectral::Cup 2026 Round 1 (Codeforces Round 1094, Div. 1 + Div. 2)",
+   "handle": "tourist",
+   "rank": 13,
+   "ratingUpdateTimeSeconds": 1777136700,
+   "oldRating": 3544,
+   "newRating": 3473
+  },
+  {
+   "contestId": 2229,
+   "contestName": "Spectral::Cup 2026 Round 2 (Codeforces Round 1100, Div. 1 + Div. 2)",
+   "handle": "tourist",
+   "rank": 11,
+   "ratingUpdateTimeSeconds": 1779557700,
+   "oldRating": 3473,
+   "newRating": 3431
+  },
+  {
+   "contestId": 2237,
+   "contestName": "Order Capital Round 2 (Codeforces Round 1104, Div. 1 + Div. 2)",
+   "handle": "tourist",
+   "rank": 2,
+   "ratingUpdateTimeSeconds": 1781804100,
+   "oldRating": 3431,
+   "newRating": 3488
+  },
+  {
+   "contestId": 2239,
+   "contestName": "Codeforces Round 1105 (Div. 1)",
+   "handle": "tourist",
+   "rank": 10,
+   "ratingUpdateTimeSeconds": 1782579900,
+   "oldRating": 3488,
+   "newRating": 3439
+  },
+  {
+   "contestId": 2245,
+   "contestName": "Spectral::Cup 2026 Round 3 (Codeforces Round 1110, Div. 1 + Div. 2)",
+   "handle": "tourist",
+   "rank": 2,
+   "ratingUpdateTimeSeconds": 1784222100,
+   "oldRating": 3439,
+   "newRating": 3528
+  },
+  {
+   "contestId": 2262,
+   "contestName": "Codeforces Round 1120 (Div. 1)",
+   "handle": "tourist",
+   "rank": 70,
+   "ratingUpdateTimeSeconds": 1789234500,
+   "oldRating": 3528,
+   "newRating": 3307
+  },
+  {
+   "contestId": 2268,
+   "contestName": "Codeforces Round 1124 (Div. 1)",
+   "handle": "tourist",
+   "rank": 2,
+   "ratingUpdateTimeSeconds": 1790442300,
+   "oldRating": 3307,
+   "newRating": 3385
+  },
+  {
+   "contestId": 2271,
+   "contestName": "DeepInfra Round 1 (Codeforces Round 1126, Div. 1 + Div. 2)",
+   "handle": "tourist",
+   "rank": 12,
+   "ratingUpdateTimeSeconds": 1791655500,
+   "oldRating": 3385,
+   "newRating": 3346
+  },
+  {
+   "contestId": 2261,
+   "contestName": "WorldQuant Round 1 (Codeforces Round 1128, Div. 1 + Div. 2)",
+   "handle": "tourist",
+   "rank": 4,
+   "ratingUpdateTimeSeconds": 1792258500,
+   "oldRating": 3346,
+   "newRating": 3382
+  }
+ ]
+}
