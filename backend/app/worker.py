@@ -25,6 +25,7 @@ log = logging.getLogger("cfcoach.worker")
 ADVISORY_LOCK_ID = 0xCFC0AC4  # arbitrary, constant
 IDLE_POLL_S = 1.0
 PRUNE_EVERY = 300
+LOCK_RETRY_S = 10.0
 
 
 async def process_one(client: CodeforcesClient) -> bool:
@@ -64,10 +65,21 @@ async def run_forever(stop: asyncio.Event) -> None:
     lock_conn = None
     if engine.dialect.name == "postgresql":
         lock_conn = engine.connect()
-        got = lock_conn.execute(text("SELECT pg_try_advisory_lock(:k)"), {"k": ADVISORY_LOCK_ID}).scalar()
-        if not got:
-            log.error("another worker holds the lock; exiting so only one worker talks to Codeforces")
-            return
+        announced = False
+        while not lock_conn.execute(
+            text("SELECT pg_try_advisory_lock(:k)"), {"k": ADVISORY_LOCK_ID}
+        ).scalar():
+            if not announced:
+                log.warning("another worker is active; standing by so only one talks to Codeforces")
+                announced = True
+            lock_conn.commit()
+            try:
+                await asyncio.wait_for(stop.wait(), timeout=LOCK_RETRY_S)
+                lock_conn.close()
+                return
+            except TimeoutError:
+                pass
+        lock_conn.commit()
     with session_scope() as db:
         n = jobs.requeue_stale_running(db)
         if n:
