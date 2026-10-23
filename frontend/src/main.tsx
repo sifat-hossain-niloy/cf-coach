@@ -7,6 +7,7 @@ import { useTheme } from "./lib/hooks";
 import { ThemeContext } from "./lib/theme";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Compare = lazy(() => import("./pages/Compare"));
 
 function App() {
   const [dark, toggle] = useTheme();
@@ -29,6 +30,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/u/:handle" element={<Dashboard />} />
+              <Route path="/compare/:a/:b" element={<Compare />} />
               <Route path="*" element={<p className="muted">Page not found. <Link className="underline" to="/">Go home</Link></p>} />
             </Routes>
           </Suspense>

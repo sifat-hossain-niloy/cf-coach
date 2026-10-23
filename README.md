@@ -159,6 +159,13 @@ dry, the others fill in (C, then B, then A). Items are ordered easy → hard.
 * **Skip and "needed editorial" marks live in the browser** (localStorage, every access wrapped in try/catch).
   Editorial problems leave the queue and come back as "Review due" 7 and 21 days after marking.
 
+## Compare two handles (stretch goal)
+
+`/compare/{a}/{b}` shows two handles side by side: profile cards, overlaid rating histories, solve rate by
+band, and a tag table. It reuses the per-handle endpoints and syncs either handle when it's stale. The
+dashboard links to it with a "Compare with…" box. The other stretch goals (handle verification with
+server-side marks, and email or Telegram digests) aren't built.
+
 ## Deviations from the original brief
 
 * `https://codeforces.com/apiHelp` sits behind a Cloudflare bot check (HTTP 403) and couldn't be read, so field

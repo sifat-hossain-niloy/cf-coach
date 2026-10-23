@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useEffect, useState, type FormEvent } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { api } from "../api/client";
 import { BandsSection, PracticeSection, RatingSection, WeakTagsSection } from "../components/Charts";
 import { ErrorNote, Skeleton } from "../components/common";
 import { QueueSection } from "../components/QueueSection";
 import { SummaryHeader, SyncPill } from "../components/SummaryHeader";
 import { TagTable } from "../components/TagTable";
-import { bandForTarget } from "../lib/format";
+import { HANDLE_RE, bandForTarget } from "../lib/format";
 import { useApi, useHandleSync } from "../lib/hooks";
 import { readJSON, writeJSON } from "../lib/storage";
 
@@ -80,6 +80,32 @@ export default function Dashboard() {
       </div>
       {progress.data ? <RatingSection progress={progress.data} /> : <Skeleton h={320} />}
       {tags.data ? <TagTable tags={tags.data} /> : <Skeleton h={300} />}
+      <CompareForm handle={summary.data?.handle ?? handle} />
     </div>
+  );
+}
+
+function CompareForm({ handle }: { handle: string }) {
+  const [other, setOther] = useState("");
+  const navigate = useNavigate();
+  const valid = HANDLE_RE.test(other.trim());
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    if (valid) navigate(`/compare/${encodeURIComponent(handle)}/${encodeURIComponent(other.trim())}`);
+  };
+  return (
+    <form onSubmit={submit} className="card flex flex-wrap items-center gap-2">
+      <label htmlFor="cmp" className="text-sm font-medium">Compare {handle} with</label>
+      <input
+        id="cmp"
+        value={other}
+        onChange={(e) => setOther(e.target.value)}
+        placeholder="another handle"
+        autoCapitalize="none"
+        spellCheck={false}
+        className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-transparent px-3 py-1.5 text-sm dark:border-slate-700"
+      />
+      <button disabled={!valid} className="btn-primary">Compare</button>
+    </form>
   );
 }

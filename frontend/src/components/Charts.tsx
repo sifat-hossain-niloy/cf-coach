@@ -253,7 +253,7 @@ export function PracticeSection({ progress }: { progress: Progress }) {
             <LineChart data={data} margin={{ left: -8, right: 8, top: 8 }}>
               <CartesianGrid stroke={c.grid} />
               <XAxis dataKey="time" type="number" domain={["dataMin", "dataMax"]} tickFormatter={fmt} stroke={c.axis} fontSize={12} minTickGap={40} />
-              <YAxis domain={["dataMin - 100", "dataMax + 100"]} stroke={c.axis} fontSize={12} allowDecimals={false} />
+              <YAxis domain={[(m: number) => Math.floor((m - 100) / 100) * 100, (m: number) => Math.ceil((m + 100) / 100) * 100]} stroke={c.axis} fontSize={12} allowDecimals={false} />
               <Tooltip {...tooltipStyle(c)} labelFormatter={(t: number) => shortDate(t)} formatter={(v: number) => [v, "practice rating"]} />
               {progress.target !== null && <ReferenceLine y={progress.target} stroke={c.accent} strokeDasharray="6 4" />}
               <Line type="stepAfter" dataKey="rating" stroke={c.good} strokeWidth={2} dot={false} isAnimationActive={false} />
