@@ -43,7 +43,10 @@ def test_recent_not_found_is_clean_404(api, session_factory):
         db.add(Handle(handle_key="ghost_user", display_handle="ghost_user", not_found_at=utcnow()))
     r = api.post("/api/handles/ghost_user/sync")
     assert r.status_code == 404
-    assert "not found" in r.json()["detail"]
+    assert r.json()["detail"]["code"] == "not_found"
+    assert "not found" in r.json()["detail"]["message"]
+    summary = api.get("/api/handles/ghost_user/summary")
+    assert summary.status_code == 404 and summary.json()["detail"]["code"] == "not_found"
 
 
 def test_failed_job_reports_error(api, session_factory):
